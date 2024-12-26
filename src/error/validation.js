@@ -1,4 +1,4 @@
-import { notFormatMessage, notInputNumberMessage, notPositiveNumberMessage, notSeparatorMessage } from "./messages";
+import { notFormatMessage, notInputNumberMessage, notOneSeparatorMessage, notPositiveNumberMessage, notSeparatorMessage } from "./messages";
 
 export function isValidNumber(number) {
     if (!notInput(number)) {
@@ -19,6 +19,10 @@ export function isValidNumber(number) {
 
     if (notOneCustomSeparator(number)) {
         throw new Error(notFormatMessage);
+    }
+
+    if (!isContinuousSeparator(number)) {
+        throw new Error(notOneSeparatorMessage);
     }
 }
 
@@ -73,4 +77,17 @@ function notOneCustomSeparator(number) {
 
     const delimiter = match[1];
     return /(.)\1+/.test(delimiter);
+}
+
+function isContinuousSeparator(number) {
+    const match = number.match(/^\/\/(.+)\n/);
+    if (match) {
+        const customDelimiter = match[1];
+        const numbersPart = number.slice(match[0].length);
+        const hasConsecutiveDelimiters = new RegExp(`(${customDelimiter})\\1+`);
+        return !hasConsecutiveDelimiters.test(numbersPart);
+    }
+
+    const hasConsecutiveDelimiters = /([,:])\1+/;
+    return !hasConsecutiveDelimiters.test(number);
 }
